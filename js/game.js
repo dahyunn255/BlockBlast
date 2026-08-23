@@ -150,21 +150,49 @@ const Game = (() => {
   }
 
   const CLEAR_EFFECTS = {
-    default: { kind: 'particles', count: 4, size: 8, distMin: 20, distMax: 40, multiColor: false, shape: 'round' },
-    'effect-pop': { kind: 'particles', count: 10, size: 9, distMin: 26, distMax: 55, multiColor: true, shape: 'shard' },
-    'effect-pulse': { kind: 'ring' },
-    'effect-chiptune': { kind: 'particles', count: 9, size: 7, distMin: 22, distMax: 46, multiColor: false, shape: 'pixel' },
+    default: {
+      kind: 'particles', count: 4, size: 8, distMin: 20, distMax: 40,
+      multiColor: false, shape: 'round',
+    },
+    // Debris shards plus white sparkles flying off in every direction.
+    'effect-pop': {
+      kind: 'particles', count: 9, size: 9, distMin: 26, distMax: 58,
+      multiColor: true, shape: 'shard', sparkleRatio: 0.4, spin: true,
+      texts: ['POP!', 'CRACK!'], textClass: 'text-pop',
+    },
+    // Concentric energy rings radiating out of each cleared cell.
+    'effect-pulse': {
+      kind: 'ring', rings: 3,
+      texts: ['BEEP', 'PULSE'], textClass: 'text-neon',
+    },
+    // Voxel debris that tumbles downward under gravity and piles out of view.
+    'effect-chiptune': {
+      kind: 'particles', count: 8, size: 7, distMin: 0, distMax: 0,
+      multiColor: false, shape: 'pixel', gravity: true,
+      texts: ['LEVEL UP!'], textClass: 'text-pixel',
+    },
   };
 
-  function spawnPulseRing(cellEl, color) {
+  function currentClearEffect() {
+    const effectId = Storage.getEquipped().clearEffect || 'default';
+    return CLEAR_EFFECTS[effectId] || CLEAR_EFFECTS.default;
+  }
+
+  function spawnPulseRings(cellEl, color, cfg) {
     const rect = cellEl.getBoundingClientRect();
-    const ring = document.createElement('div');
-    ring.className = 'pulse-ring';
-    ring.style.left = `${rect.left + rect.width / 2}px`;
-    ring.style.top = `${rect.top + rect.height / 2}px`;
-    ring.style.setProperty('--ring-color', `var(--block-${color})`);
-    document.body.appendChild(ring);
-    ring.addEventListener('animationend', () => ring.remove());
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    for (let i = 0; i < (cfg.rings || 1); i++) {
+      const ring = document.createElement('div');
+      ring.className = 'pulse-ring';
+      ring.style.left = `${cx}px`;
+      ring.style.top = `${cy}px`;
+      ring.style.setProperty('--ring-color', `var(--block-${color})`);
+      ring.style.setProperty('--ring-delay', `${i * 0.09}s`);
+      ring.style.setProperty('--ring-scale', `${5 + i * 2}`);
+      document.body.appendChild(ring);
+      ring.addEventListener('animationend', () => ring.remove());
+    }
   }
 
   function spawnParticleBurst(cellEl, color, cfg) {
@@ -175,33 +203,74 @@ const Game = (() => {
       const p = document.createElement('div');
       const particleColor = cfg.multiColor ? PIECE_COLORS[Math.floor(Math.random() * PIECE_COLORS.length)] : color;
       p.className = `clear-particle block-${particleColor}`;
-      if (cfg.shape === 'shard') {
+
+      let size = cfg.size;
+      if (cfg.sparkleRatio && Math.random() < cfg.sparkleRatio) {
+        p.classList.add('sparkle');
+        size = cfg.size * 0.8;
+      } else if (cfg.shape === 'shard') {
         p.classList.add('shard');
-        p.style.setProperty('--rot', `${Math.random() * 360}deg`);
       } else if (cfg.shape === 'pixel') {
         p.classList.add('pixel');
       }
-      const angle = (Math.PI * 2 * i) / cfg.count + Math.random() * 0.8;
-      const dist = cfg.distMin + Math.random() * (cfg.distMax - cfg.distMin);
-      p.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
-      p.style.setProperty('--dy', `${Math.sin(angle) * dist}px`);
-      p.style.width = `${cfg.size}px`;
-      p.style.height = `${cfg.size}px`;
-      p.style.left = `${cx - cfg.size / 2}px`;
-      p.style.top = `${cy - cfg.size / 2}px`;
+      if (cfg.spin) p.style.setProperty('--rot', `${Math.random() * 360}deg`);
+
+      if (cfg.gravity) {
+        // Voxels scatter a little sideways, then rain straight down past the board.
+        p.classList.add('falling');
+        p.style.setProperty('--dx', `${(Math.random() - 0.5) * 34}px`);
+        p.style.setProperty('--dy', `${70 + Math.random() * 70}px`);
+      } else {
+        const angle = (Math.PI * 2 * i) / cfg.count + Math.random() * 0.8;
+        const dist = cfg.distMin + Math.random() * (cfg.distMax - cfg.distMin);
+        p.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
+        p.style.setProperty('--dy', `${Math.sin(angle) * dist}px`);
+      }
+
+      p.style.width = `${size}px`;
+      p.style.height = `${size}px`;
+      p.style.left = `${cx - size / 2}px`;
+      p.style.top = `${cy - size / 2}px`;
       document.body.appendChild(p);
       p.addEventListener('animationend', () => p.remove());
     }
   }
 
-  function spawnClearEffect(cellEl, color) {
-    const effectId = Storage.getEquipped().clearEffect || 'default';
-    const cfg = CLEAR_EFFECTS[effectId] || CLEAR_EFFECTS.default;
+  function spawnClearEffect(cellEl, color, cfg) {
     if (cfg.kind === 'ring') {
-      spawnPulseRing(cellEl, color);
+      spawnPulseRings(cellEl, color, cfg);
     } else {
       spawnParticleBurst(cellEl, color, cfg);
     }
+  }
+
+  // One shouty callout per clear (not per cell), placed over the cleared cells.
+  function spawnEffectTexts(cellEls_, color, cfg) {
+    if (!cfg.texts || cellEls_.length === 0) return;
+    const rects = cellEls_.map(el => el.getBoundingClientRect());
+    const minX = Math.min(...rects.map(r => r.left));
+    const maxX = Math.max(...rects.map(r => r.right));
+    const minY = Math.min(...rects.map(r => r.top));
+    const maxY = Math.max(...rects.map(r => r.bottom));
+
+    const spanX = Math.max(maxX - minX, 1);
+    const spanY = Math.max(maxY - minY, 1);
+    const n = cfg.texts.length;
+
+    cfg.texts.forEach((text, i) => {
+      const el = document.createElement('div');
+      el.className = `effect-text ${cfg.textClass}`;
+      el.textContent = text;
+      el.style.setProperty('--tc', `var(--block-${color})`);
+      el.style.setProperty('--text-delay', `${i * 0.12}s`);
+      // Give each callout its own horizontal band so multiple words never overlap.
+      const bandCenter = (i + 0.5) / n;
+      const jitter = (Math.random() - 0.5) * (0.6 / n);
+      el.style.left = `${minX + spanX * Math.min(0.85, Math.max(0.15, bandCenter + jitter))}px`;
+      el.style.top = `${minY + spanY * (n > 1 ? (i % 2 === 0 ? 0.3 : 0.68) : 0.45)}px`;
+      document.body.appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    });
   }
 
   function playClearSound(linesCleared) {
@@ -213,16 +282,23 @@ const Game = (() => {
   }
 
   function flashLineClear(rows, cols) {
+    const cfg = currentClearEffect();
     const cellsToClear = new Set();
     for (const r of rows) for (let c = 0; c < SIZE; c++) cellsToClear.add(r * SIZE + c);
     for (const c of cols) for (let r = 0; r < SIZE; r++) cellsToClear.add(r * SIZE + c);
+
+    const clearedEls = [];
+    let lastColor = 'blue';
     for (const key of cellsToClear) {
       const r = Math.floor(key / SIZE);
       const c = key % SIZE;
       const el = cellEls[r][c];
-      spawnClearEffect(el, grid[r][c]);
+      if (grid[r][c]) lastColor = grid[r][c];
+      spawnClearEffect(el, grid[r][c], cfg);
       el.classList.add('clearing');
+      clearedEls.push(el);
     }
+    spawnEffectTexts(clearedEls, lastColor, cfg);
   }
 
   function tryPlacePiece(piece, row, col) {

@@ -87,9 +87,11 @@ document.addEventListener('DOMContentLoaded', () => {
     app.classList.add(theme);
   }
 
+  // Skin classes live on <body>, not #app, because the drag ghost and clear particles
+  // are appended to document.body — outside #app — and still need the skin's colors.
   function applySkin(skinId) {
-    Shop.ITEMS.filter(i => i.category === 'blockSkin').forEach(i => app.classList.remove(i.id));
-    if (skinId && skinId !== 'default') app.classList.add(skinId);
+    Shop.ITEMS.filter(i => i.category === 'blockSkin').forEach(i => document.body.classList.remove(i.id));
+    if (skinId && skinId !== 'default') document.body.classList.add(skinId);
   }
 
   function applyMuteIcon(muted) {
@@ -109,10 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
       card.className = `shop-item${item.owned ? ' owned' : ''}${item.equipped ? ' equipped' : ''}`;
 
       const swatch = document.createElement('div');
-      swatch.className = 'shop-item-swatch';
-      if (item.swatch) {
-        swatch.style.background = `linear-gradient(135deg, ${item.swatch.join(', ')})`;
-      } else if (item.icon) {
+      swatch.className = `shop-item-swatch swatch-${item.id}`;
+      if (item.icon) {
         swatch.classList.add('shop-item-swatch-icon');
         swatch.textContent = item.icon;
       }

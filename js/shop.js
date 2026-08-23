@@ -1,26 +1,26 @@
 const SHOP_ITEMS = [
   {
-    id: 'skin-pop', category: 'blockSkin', name: 'Pop! Crack!', desc: 'บล็อกสีสดใสสไตล์การ์ตูน',
-    price: 100, swatch: ['#ff3b3b', '#ffe23b', '#2f8fff', '#3ddc61'],
+    id: 'skin-pop', category: 'blockSkin', name: 'Pop! Crack!', desc: 'บล็อกพลาสติกมันเงา สีสดจัดจ้าน',
+    price: 100,
   },
   {
-    id: 'skin-neon', category: 'blockSkin', name: 'Beep Pulse', desc: 'บล็อกนีออนเรืองแสง',
-    price: 150, swatch: ['#00e5ff', '#d63bff', '#ff2ee0', '#39ff9d'],
+    id: 'skin-neon', category: 'blockSkin', name: 'Beep Pulse', desc: 'บล็อกโครงลวดนีออน เรืองแสงกลางคืน',
+    price: 150,
   },
   {
-    id: 'skin-chiptune', category: 'blockSkin', name: 'Chiptune', desc: 'บล็อกพิกเซลสไตล์ 8-bit',
-    price: 150, swatch: ['#8955c9', '#52a447', '#e0c23a', '#e8823a'],
+    id: 'skin-chiptune', category: 'blockSkin', name: 'Chiptune', desc: 'บล็อกวอกเซล 8-bit แบ่งช่อง 3x3',
+    price: 150,
   },
   {
-    id: 'effect-pop', category: 'clearEffect', name: 'Pop! Crack!', desc: 'เอฟเฟกต์ระเบิดกระจายเป็นเศษ พร้อมเสียง Pop!',
+    id: 'effect-pop', category: 'clearEffect', name: 'Pop! Crack!', desc: 'บล็อกแตกกระจายเป็นเศษ+ประกายไฟ พร้อมคำว่า POP! CRACK!',
     price: 100, icon: '💥',
   },
   {
-    id: 'effect-pulse', category: 'clearEffect', name: 'Beep Pulse', desc: 'เอฟเฟกต์คลื่นพลังงานนีออน พร้อมเสียง Beep',
+    id: 'effect-pulse', category: 'clearEffect', name: 'Beep Pulse', desc: 'คลื่นวงแหวนนีออนซ้อนกัน พร้อมคำว่า BEEP PULSE',
     price: 150, icon: '💫',
   },
   {
-    id: 'effect-chiptune', category: 'clearEffect', name: 'Chiptune', desc: 'เอฟเฟกต์พิกเซลสไตล์ 8-bit พร้อมเสียงชิปทูน',
+    id: 'effect-chiptune', category: 'clearEffect', name: 'Chiptune', desc: 'พิกเซลร่วงหล่นแบบ 8-bit พร้อมคำว่า LEVEL UP!',
     price: 150, icon: '🕹️',
   },
 ];

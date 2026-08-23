@@ -53,56 +53,82 @@
   --overlay-bg: rgba(24, 8, 32, 0.85);
 }
 
+/* Pop! Crack! — glossy moulded-plastic bricks with a hard specular highlight. */
 .skin-pop {
-  --block-blue: #2f8fff; --block-blue-dark: #1a5fcc;
-  --block-green: #3ddc61; --block-green-dark: #1fa843;
-  --block-orange: #ff9d2f; --block-orange-dark: #e6720a;
-  --block-purple: #b544e0; --block-purple-dark: #8a1fb8;
-  --block-red: #ff3b3b; --block-red-dark: #cc1818;
-  --block-teal: #21dbc7; --block-teal-dark: #0fa896;
-  --block-yellow: #ffe23b; --block-yellow-dark: #e0b800;
-  --block-pink: #ff5cad; --block-pink-dark: #e02f85;
+  --block-blue: #2f6fd4; --block-blue-dark: #14418f;
+  --block-green: #4cb040; --block-green-dark: #23701c;
+  --block-orange: #f08a24; --block-orange-dark: #b25708;
+  --block-purple: #9a45cf; --block-purple-dark: #611f8f;
+  --block-red: #e8342a; --block-red-dark: #a10f08;
+  --block-teal: #1ab5b0; --block-teal-dark: #067471;
+  --block-yellow: #f5c518; --block-yellow-dark: #b88b00;
+  --block-pink: #ec4a94; --block-pink-dark: #ab1459;
 }
 
+.skin-pop .block,
+.skin-pop .cell.filled {
+  border-radius: 9px;
+  background-color: var(--c1);
+  background-image:
+    radial-gradient(ellipse 42% 30% at 30% 20%, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.28) 45%, rgba(255, 255, 255, 0) 72%),
+    linear-gradient(150deg, var(--c1) 0%, var(--c1) 42%, var(--c2) 100%);
+  background-blend-mode: normal, normal;
+  background-size: cover, cover;
+  box-shadow:
+    inset 0 -5px 0 rgba(0, 0, 0, 0.26),
+    inset 0 2px 0 rgba(255, 255, 255, 0.4),
+    0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Beep Pulse — hollow wireframe cubes, glowing edges only. */
 .skin-neon {
-  --block-blue: #00e5ff; --block-blue-dark: #0090b3;
+  --block-blue: #2f7bff; --block-blue-dark: #0040b3;
   --block-green: #39ff9d; --block-green-dark: #0dcc73;
   --block-orange: #ff9d00; --block-orange-dark: #cc7500;
-  --block-purple: #d63bff; --block-purple-dark: #a300cc;
-  --block-red: #ff3b6b; --block-red-dark: #cc0d42;
-  --block-teal: #00fff2; --block-teal-dark: #00b3a8;
+  --block-purple: #a44cff; --block-purple-dark: #6a00cc;
+  --block-red: #ff2e7a; --block-red-dark: #cc004d;
+  --block-teal: #00e5ff; --block-teal-dark: #00a3b3;
   --block-yellow: #faff00; --block-yellow-dark: #c2c700;
   --block-pink: #ff2ee0; --block-pink-dark: #c700ad;
 }
 
 .skin-neon .block,
 .skin-neon .cell.filled {
+  border-radius: 4px;
+  background-color: rgba(8, 6, 20, 0.62);
+  background-image: none;
+  border: 2px solid var(--c1);
   box-shadow:
-    inset 0 -3px 0 rgba(0, 0, 0, 0.25),
-    inset 0 2px 0 rgba(255, 255, 255, 0.35),
-    0 0 10px 2px var(--c1),
-    0 0 2px 1px #fff;
+    0 0 7px 1px var(--c1),
+    0 0 16px 3px var(--c1),
+    inset 0 0 8px rgba(255, 255, 255, 0.28);
 }
 
+/* Chiptune — voxel bricks split into a 3x3 tile face. */
 .skin-chiptune {
   --block-blue: #4062bb; --block-blue-dark: #24346b;
-  --block-green: #52a447; --block-green-dark: #2c6b23;
+  --block-green: #6cc04a; --block-green-dark: #3b7a25;
   --block-orange: #e8823a; --block-orange-dark: #a8541c;
-  --block-purple: #8955c9; --block-purple-dark: #542f85;
+  --block-purple: #9a5fd4; --block-purple-dark: #5c308c;
   --block-red: #d84343; --block-red-dark: #8f2323;
   --block-teal: #3ab5ab; --block-teal-dark: #1f7871;
-  --block-yellow: #e0c23a; --block-yellow-dark: #a38a1c;
+  --block-yellow: #e8cf3a; --block-yellow-dark: #a89317;
   --block-pink: #d857a0; --block-pink-dark: #96326d;
 }
 
 .skin-chiptune .block,
 .skin-chiptune .cell.filled {
-  border-radius: 3px;
-  background-image: none;
+  border-radius: 2px;
   background-color: var(--c1);
+  background-image:
+    repeating-linear-gradient(to right, rgba(0, 0, 0, 0.5) 0 2px, rgba(0, 0, 0, 0) 2px 33.34%),
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0 2px, rgba(0, 0, 0, 0) 2px 33.34%);
+  background-blend-mode: normal, normal;
+  background-size: 100% 100%, 100% 100%;
   box-shadow:
-    inset -4px -4px 0 var(--c2),
-    inset 4px 4px 0 rgba(255, 255, 255, 0.25);
+    inset 0 0 0 2px rgba(0, 0, 0, 0.55),
+    inset -3px -3px 0 rgba(0, 0, 0, 0.22),
+    0 2px 0 rgba(0, 0, 0, 0.3);
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -376,6 +402,30 @@ body {
   background: var(--cell-bg);
 }
 
+/* Shop previews mirror how each skin actually renders on the board. */
+.swatch-skin-pop {
+  background-color: #e8342a;
+  background-image:
+    radial-gradient(ellipse 42% 30% at 30% 20%, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.28) 45%, rgba(255, 255, 255, 0) 72%),
+    linear-gradient(150deg, #e8342a 0%, #e8342a 42%, #a10f08 100%);
+  box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.26), inset 0 2px 0 rgba(255, 255, 255, 0.4);
+}
+
+.swatch-skin-neon {
+  background: rgba(8, 6, 20, 0.9);
+  border: 2px solid #ff2ee0;
+  box-shadow: 0 0 7px 1px #ff2ee0, inset 0 0 10px rgba(255, 46, 224, 0.6);
+}
+
+.swatch-skin-chiptune {
+  background-color: #6cc04a;
+  background-image:
+    repeating-linear-gradient(to right, rgba(0, 0, 0, 0.5) 0 2px, rgba(0, 0, 0, 0) 2px 33.34%),
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0 2px, rgba(0, 0, 0, 0) 2px 33.34%);
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.55);
+}
+
 .shop-item-text {
   flex: 1;
   min-width: 0;
@@ -539,22 +589,84 @@ body {
   border-radius: 0;
 }
 
+/* Pop! Crack! — bright four-point sparkles mixed in with the debris shards. */
+.clear-particle.sparkle {
+  border-radius: 0;
+  background: #fff;
+  box-shadow: 0 0 6px 2px var(--c1);
+  clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
+}
+
+/* Chiptune — voxel debris that falls and fades instead of flying outward. */
+.clear-particle.falling {
+  animation: particle-fall 0.62s cubic-bezier(0.4, 0, 0.9, 0.6) forwards;
+}
+
+@keyframes particle-fall {
+  0% { transform: translate(0, 0); opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)); opacity: 0; }
+}
+
 .pulse-ring {
   position: fixed;
   width: 10px;
   height: 10px;
   margin-left: -5px;
   margin-top: -5px;
-  border: 3px solid var(--ring-color, #fff);
+  border: 2px solid var(--ring-color, #fff);
   border-radius: 50%;
   pointer-events: none;
   z-index: 980;
-  animation: pulse-ring-anim 0.5s ease-out forwards;
+  box-shadow: 0 0 8px 1px var(--ring-color, #fff), inset 0 0 6px var(--ring-color, #fff);
+  animation: pulse-ring-anim 0.55s ease-out forwards;
+  animation-delay: var(--ring-delay, 0s);
+  opacity: 0;
 }
 
 @keyframes pulse-ring-anim {
   0% { transform: scale(1); opacity: 1; }
-  100% { transform: scale(7); opacity: 0; }
+  100% { transform: scale(var(--ring-scale, 7)); opacity: 0; }
+}
+
+/* Shouty pixel-font callouts that punctuate each themed clear effect. */
+.effect-text {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  font-family: 'Courier New', ui-monospace, monospace;
+  font-weight: 900;
+  font-size: 21px;
+  letter-spacing: 2px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 985;
+  color: #fff;
+  animation: effect-text-anim 0.8s ease-out forwards;
+  animation-delay: var(--text-delay, 0s);
+  opacity: 0;
+}
+
+@keyframes effect-text-anim {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.55); }
+  22% { opacity: 1; transform: translate(-50%, -58%) scale(1.15); }
+  40% { transform: translate(-50%, -62%) scale(1); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -92%) scale(1); }
+}
+
+.effect-text.text-pop {
+  color: #eef2f7;
+  text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+}
+
+.effect-text.text-neon {
+  color: #fff;
+  text-shadow: 0 0 6px var(--tc), 0 0 14px var(--tc), 0 0 24px var(--tc);
+}
+
+.effect-text.text-pixel {
+  color: var(--tc);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.65);
 }
 
 .block, .cell.filled {
