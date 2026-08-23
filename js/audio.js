@@ -51,6 +51,11 @@ const AudioFx = (() => {
     tone({ freq: 400, slideTo: 100, duration: 0.6, type: 'sine', gain: 0.15 });
   }
 
+  function achievement() {
+    tone({ freq: 660, duration: 0.14, type: 'sine', gain: 0.14 });
+    tone({ freq: 880, duration: 0.22, type: 'sine', gain: 0.14, delay: 0.1 });
+  }
+
   function reroll() {
     tone({ freq: 260, slideTo: 520, duration: 0.1, type: 'triangle', gain: 0.1 });
     tone({ freq: 220, slideTo: 440, duration: 0.12, type: 'triangle', gain: 0.1, delay: 0.06 });
@@ -71,5 +76,5 @@ const AudioFx = (() => {
     return muted;
   }
 
-  return { place, invalid, clearLines, combo, gameOver, levelComplete, reroll, setMuted, isMuted };
+  return { place, invalid, clearLines, combo, gameOver, levelComplete, reroll, achievement, setMuted, isMuted };
 })();

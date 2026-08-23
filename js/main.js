@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const screens = {
     home: document.getElementById('homeScreen'),
     levelSelect: document.getElementById('levelSelectScreen'),
+    achievements: document.getElementById('achievementsScreen'),
     game: document.getElementById('gameScreen'),
   };
 
@@ -39,6 +40,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function renderAchievements() {
+    const list = document.getElementById('achievementList');
+    list.innerHTML = '';
+    for (const a of Achievements.list()) {
+      const item = document.createElement('div');
+      item.className = `achievement-item${a.unlocked ? ' unlocked' : ''}`;
+      const icon = document.createElement('div');
+      icon.className = 'achievement-icon';
+      icon.textContent = a.unlocked ? '🏆' : '🔒';
+      const text = document.createElement('div');
+      text.className = 'achievement-text';
+      const title = document.createElement('div');
+      title.className = 'achievement-title';
+      title.textContent = a.title;
+      const desc = document.createElement('div');
+      desc.className = 'achievement-desc';
+      desc.textContent = a.desc;
+      text.append(title, desc);
+      item.append(icon, text);
+      list.appendChild(item);
+    }
+  }
+
+  function availableThemes() {
+    return Achievements.hasThemeUnlock() ? Storage.THEMES : Storage.THEMES.filter(t => t !== 'theme-sunset');
+  }
+
   function applyTheme(theme) {
     Storage.THEMES.forEach(t => app.classList.remove(t));
     app.classList.add(theme);
@@ -48,12 +76,21 @@ document.addEventListener('DOMContentLoaded', () => {
     muteBtn.textContent = muted ? '🔇' : '🔊';
   }
 
-  applyTheme(Storage.getTheme());
+  // Backfill: unlock any achievements already met by past progress (e.g. an existing
+  // best score) without showing a toast — the toast is only for in-game unlock moments.
+  Achievements.checkNewUnlocks({ bestScore: Storage.getBest() });
+
+  const savedTheme = Storage.getTheme();
+  const initialTheme = availableThemes().includes(savedTheme) ? savedTheme : 'theme-classic';
+  applyTheme(initialTheme);
   AudioFx.setMuted(Storage.getMuted());
   applyMuteIcon(Storage.getMuted());
 
   themeBtn.addEventListener('click', () => {
-    const next = Storage.nextTheme(Storage.getTheme());
+    const avail = availableThemes();
+    const current = Storage.getTheme();
+    const idx = avail.indexOf(current);
+    const next = avail[(idx + 1) % avail.length] || avail[0];
     Storage.setTheme(next);
     applyTheme(next);
   });
@@ -75,6 +112,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('levelSelectBackBtn').addEventListener('click', goHome);
+
+  document.getElementById('achievementsBtn').addEventListener('click', () => {
+    renderAchievements();
+    showScreen('achievements');
+  });
+
+  document.getElementById('achievementsBackBtn').addEventListener('click', goHome);
 
   Game.init({ onMenu: goHome });
 

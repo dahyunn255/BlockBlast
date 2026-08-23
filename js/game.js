@@ -29,6 +29,8 @@ const Game = (() => {
     dom.resultMenuBtn = document.getElementById('resultMenuBtn');
     dom.rerollBtn = document.getElementById('rerollBtn');
     dom.rerollCount = document.getElementById('rerollCount');
+    dom.achievementToast = document.getElementById('achievementToast');
+    dom.achievementToastTitle = document.getElementById('achievementToastTitle');
   }
 
   function buildBoardDom() {
@@ -185,6 +187,7 @@ const Game = (() => {
     if (mode === 'level') movesLeft = Math.max(0, movesLeft - 1);
     renderBoard();
     AudioFx.place();
+    Storage.bumpStat('piecesPlaced', 1);
 
     const { rows, cols } = Board.findFullLines(grid);
     const linesCleared = rows.length + cols.length;
@@ -195,6 +198,8 @@ const Game = (() => {
       let bonus = linesCleared * 10 * combo;
       if (linesCleared > 1) bonus += (linesCleared - 1) * 15;
       score += bonus;
+      Storage.bumpStat('linesCleared', linesCleared);
+      Storage.setStatMax('bestCombo', combo);
       AudioFx.clearLines(linesCleared);
       if (combo > 1) {
         showComboPopup(`COMBO x${combo}  +${bonus}`);
@@ -237,6 +242,19 @@ const Game = (() => {
     checkBoardPlayable();
   }
 
+  function showAchievementToast(achievement) {
+    dom.achievementToastTitle.textContent = achievement.title;
+    dom.achievementToast.classList.remove('show');
+    void dom.achievementToast.offsetWidth;
+    dom.achievementToast.classList.add('show');
+    AudioFx.achievement();
+  }
+
+  function checkAchievements() {
+    const newlyUnlocked = Achievements.checkNewUnlocks({ bestScore: Math.max(Storage.getBest(), best) });
+    newlyUnlocked.forEach((a, i) => setTimeout(() => showAchievementToast(a), i * 1800));
+  }
+
   function afterMoveResolved() {
     if (tray.length === 0) {
       tray = Pieces.randomTray(3);
@@ -247,6 +265,7 @@ const Game = (() => {
     }
     updateScoreDom();
     renderTray();
+    checkAchievements();
 
     if (mode === 'level') {
       if (score >= levelTarget) {

@@ -31,6 +31,7 @@
           <span class="mode-btn-desc">พิชิตเป้าหมายทีละด่าน</span>
         </button>
       </div>
+      <button id="achievementsBtn" class="text-link-btn">🏆 ความสำเร็จ</button>
       <div class="home-footer">
         <span class="label">BEST (Endless)</span>
         <span id="homeBest" class="value">0</span>
@@ -45,6 +46,15 @@
       <h2>เลือกด่าน</h2>
     </header>
     <div id="levelGrid" class="level-grid"></div>
+  </section>
+
+  <!-- Achievements screen -->
+  <section id="achievementsScreen" class="screen hidden">
+    <header class="sub-topbar">
+      <button id="achievementsBackBtn" class="icon-btn" aria-label="Back">←</button>
+      <h2>ความสำเร็จ</h2>
+    </header>
+    <div id="achievementList" class="achievement-list"></div>
   </section>
 
   <!-- Game screen -->
@@ -70,6 +80,13 @@
     </header>
 
     <div id="comboPopup" class="combo-popup"></div>
+    <div id="achievementToast" class="achievement-toast">
+      <span class="achievement-toast-icon">🏆</span>
+      <div>
+        <div class="achievement-toast-label">ปลดล็อกความสำเร็จ!</div>
+        <div id="achievementToastTitle" class="achievement-toast-title"></div>
+      </div>
+    </div>
 
     <main class="board-wrap">
       <div id="board" class="board"></div>
@@ -104,6 +121,7 @@
 </div>
 
 <script src="js/storage.js"></script>
+<script src="js/achievements.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/pieces.js"></script>
 <script src="js/board.js"></script>

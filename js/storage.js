@@ -4,9 +4,11 @@ const Storage = (() => {
     THEME: 'blockblast.theme',
     MUTED: 'blockblast.muted',
     UNLOCKED_LEVEL: 'blockblast.unlockedLevel',
+    STATS: 'blockblast.stats',
+    ACHIEVEMENTS: 'blockblast.achievements',
   };
 
-  const THEMES = ['theme-classic', 'theme-neon'];
+  const THEMES = ['theme-classic', 'theme-neon', 'theme-sunset'];
 
   function getBest() {
     return Number(localStorage.getItem(KEYS.BEST)) || 0;
@@ -48,8 +50,53 @@ const Storage = (() => {
     }
   }
 
+  function getStats() {
+    try {
+      return { piecesPlaced: 0, linesCleared: 0, bestCombo: 0, ...JSON.parse(localStorage.getItem(KEYS.STATS)) };
+    } catch {
+      return { piecesPlaced: 0, linesCleared: 0, bestCombo: 0 };
+    }
+  }
+
+  function saveStats(stats) {
+    localStorage.setItem(KEYS.STATS, JSON.stringify(stats));
+  }
+
+  function bumpStat(key, amount) {
+    const stats = getStats();
+    stats[key] = (stats[key] || 0) + amount;
+    saveStats(stats);
+    return stats;
+  }
+
+  function setStatMax(key, value) {
+    const stats = getStats();
+    if (value > (stats[key] || 0)) {
+      stats[key] = value;
+      saveStats(stats);
+    }
+    return stats;
+  }
+
+  function getUnlockedAchievements() {
+    try {
+      return JSON.parse(localStorage.getItem(KEYS.ACHIEVEMENTS)) || [];
+    } catch {
+      return [];
+    }
+  }
+
+  function unlockAchievement(id) {
+    const list = getUnlockedAchievements();
+    if (list.includes(id)) return false;
+    list.push(id);
+    localStorage.setItem(KEYS.ACHIEVEMENTS, JSON.stringify(list));
+    return true;
+  }
+
   return {
     getBest, setBest, getTheme, setTheme, nextTheme, getMuted, setMuted,
     getUnlockedLevel, setUnlockedLevel, THEMES,
+    getStats, bumpStat, setStatMax, getUnlockedAchievements, unlockAchievement,
   };
 })();
