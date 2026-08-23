@@ -57,9 +57,9 @@ const Pieces = (() => {
     return cells.map(([r, c]) => [r - minR, c - minC]);
   }
 
-  function weightedRandomShape() {
+  function weightedRandomShape(rng) {
     const total = PIECE_SHAPES.reduce((sum, s) => sum + s.weight, 0);
-    let roll = Math.random() * total;
+    let roll = rng() * total;
     for (const shape of PIECE_SHAPES) {
       roll -= shape.weight;
       if (roll <= 0) return shape;
@@ -67,9 +67,11 @@ const Pieces = (() => {
     return PIECE_SHAPES[PIECE_SHAPES.length - 1];
   }
 
-  function randomPiece() {
-    const shape = weightedRandomShape();
-    const color = PIECE_COLORS[Math.floor(Math.random() * PIECE_COLORS.length)];
+  // rng: optional () => number in [0,1), defaults to Math.random. Pass a seeded rng
+  // (see js/daily.js) to make a piece sequence reproducible, e.g. for the daily challenge.
+  function randomPiece(rng = Math.random) {
+    const shape = weightedRandomShape(rng);
+    const color = PIECE_COLORS[Math.floor(rng() * PIECE_COLORS.length)];
     return {
       id: `p${Date.now()}_${Math.floor(Math.random() * 100000)}`,
       cells: normalize(shape.cells),
@@ -77,8 +79,8 @@ const Pieces = (() => {
     };
   }
 
-  function randomTray(count = 3) {
-    return Array.from({ length: count }, randomPiece);
+  function randomTray(count = 3, rng = Math.random) {
+    return Array.from({ length: count }, () => randomPiece(rng));
   }
 
   function dimensions(cells) {

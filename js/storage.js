@@ -6,6 +6,7 @@ const Storage = (() => {
     UNLOCKED_LEVEL: 'blockblast.unlockedLevel',
     STATS: 'blockblast.stats',
     ACHIEVEMENTS: 'blockblast.achievements',
+    DAILY: 'blockblast.daily',
   };
 
   const THEMES = ['theme-classic', 'theme-neon', 'theme-sunset'];
@@ -94,9 +95,22 @@ const Storage = (() => {
     return true;
   }
 
+  function getDailyStatus() {
+    try {
+      return { lastCompletedDate: null, streak: 0, ...JSON.parse(localStorage.getItem(KEYS.DAILY)) };
+    } catch {
+      return { lastCompletedDate: null, streak: 0 };
+    }
+  }
+
+  function setDailyStatus(status) {
+    localStorage.setItem(KEYS.DAILY, JSON.stringify(status));
+  }
+
   return {
     getBest, setBest, getTheme, setTheme, nextTheme, getMuted, setMuted,
     getUnlockedLevel, setUnlockedLevel, THEMES,
     getStats, bumpStat, setStatMax, getUnlockedAchievements, unlockAchievement,
+    getDailyStatus, setDailyStatus,
   };
 })();

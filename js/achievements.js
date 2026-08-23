@@ -8,6 +8,8 @@ const ACHIEVEMENTS_LIST = [
   { id: 'score1000', title: 'คะแนนทะลุ 1000', desc: 'ทำคะแนน 1000 ในโหมด Endless', check: s => s.bestScore >= 1000 },
   { id: 'level5', title: 'นักพิชิตด่าน', desc: 'ผ่านด่านที่ 5', check: s => s.unlockedLevel > 5 },
   { id: 'level10', title: 'จอมยุทธ์ 10 ด่าน', desc: 'ผ่านด่านที่ 10', check: s => s.unlockedLevel > 10 },
+  { id: 'dailyStreak3', title: 'นักสู้รายวัน', desc: 'ทำภารกิจประจำวันติดต่อกัน 3 วัน', check: s => s.dailyStreak >= 3 },
+  { id: 'dailyStreak7', title: 'จอมขยันรายสัปดาห์', desc: 'ทำภารกิจประจำวันติดต่อกัน 7 วัน', check: s => s.dailyStreak >= 7 },
 ];
 
 const THEME_UNLOCK_ACHIEVEMENT_ID = 'combo3';
@@ -18,6 +20,7 @@ const Achievements = (() => {
       ...Storage.getStats(),
       bestScore: Storage.getBest(),
       unlockedLevel: Storage.getUnlockedLevel(),
+      dailyStreak: Storage.getDailyStatus().streak,
     };
   }
 

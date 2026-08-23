@@ -138,6 +138,7 @@ body {
 
 .mode-btn-endless { background: linear-gradient(135deg, var(--block-blue), var(--block-blue-dark)); }
 .mode-btn-level { background: linear-gradient(135deg, var(--block-orange), var(--block-orange-dark)); }
+.mode-btn-daily { background: linear-gradient(135deg, var(--block-purple), var(--block-purple-dark)); }
 
 .text-link-btn {
   margin-top: 20px;

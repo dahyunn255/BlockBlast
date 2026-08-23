@@ -1,10 +1,11 @@
 const Game = (() => {
   const REROLL_LIMIT = 3;
   const dom = {};
-  let mode = 'endless'; // 'endless' | 'level'
+  let mode = 'endless'; // 'endless' | 'level' | 'daily'
   let grid, tray, score, best, combo;
   let levelNumber, levelTarget, movesLeft;
   let rerollsLeft;
+  let pieceRng = null; // seeded rng for 'daily' mode, null = Math.random (via Pieces default)
   let cellEls = [];
   let previewCells = [];
   let onMenu = () => {};
@@ -125,7 +126,7 @@ const Game = (() => {
 
   function updateScoreDom() {
     dom.score.textContent = score;
-    if (mode === 'level') {
+    if (mode === 'level' || mode === 'daily') {
       dom.secondaryLabel.textContent = 'GOAL';
       dom.secondaryValue.textContent = levelTarget;
       dom.movesValue.textContent = movesLeft;
@@ -184,7 +185,7 @@ const Game = (() => {
     Board.place(grid, piece.cells, row, col, piece.color);
     score += piece.cells.length;
     tray = tray.filter(p => p.id !== piece.id);
-    if (mode === 'level') movesLeft = Math.max(0, movesLeft - 1);
+    if (mode === 'level' || mode === 'daily') movesLeft = Math.max(0, movesLeft - 1);
     renderBoard();
     AudioFx.place();
     Storage.bumpStat('piecesPlaced', 1);
@@ -225,7 +226,9 @@ const Game = (() => {
 
   function checkBoardPlayable() {
     if (Board.anyPieceFits(grid, tray)) return true;
-    if (mode === 'level') levelFailed(); else endGame();
+    if (mode === 'level') levelFailed();
+    else if (mode === 'daily') dailyFailed();
+    else endGame();
     return false;
   }
 
@@ -233,7 +236,7 @@ const Game = (() => {
     if (rerollsLeft <= 0) return;
     rerollsLeft -= 1;
     updateRerollDom();
-    tray = Pieces.randomTray(3);
+    tray = Pieces.randomTray(3, pieceRng || undefined);
     renderTray();
     AudioFx.reroll();
     dom.tray.classList.remove('rerolling');
@@ -257,7 +260,7 @@ const Game = (() => {
 
   function afterMoveResolved() {
     if (tray.length === 0) {
-      tray = Pieces.randomTray(3);
+      tray = Pieces.randomTray(3, pieceRng || undefined);
     }
 
     if (score > best) {
@@ -265,19 +268,19 @@ const Game = (() => {
     }
     updateScoreDom();
     renderTray();
-    checkAchievements();
 
-    if (mode === 'level') {
+    let ended = false;
+    if (mode === 'level' || mode === 'daily') {
       if (score >= levelTarget) {
-        levelComplete();
-        return;
-      }
-      if (movesLeft <= 0) {
-        levelFailed();
-        return;
+        if (mode === 'level') levelComplete(); else dailyComplete();
+        ended = true;
+      } else if (movesLeft <= 0) {
+        if (mode === 'level') levelFailed(); else dailyFailed();
+        ended = true;
       }
     }
-    checkBoardPlayable();
+    if (!ended) checkBoardPlayable();
+    checkAchievements();
   }
 
   function showResult({ title, message, stat, showBadge, badgeText, primaryLabel, primaryAction }) {
@@ -334,23 +337,57 @@ const Game = (() => {
     });
   }
 
+  function dailyComplete() {
+    const streak = Daily.markCompleted();
+    AudioFx.levelComplete();
+    showResult({
+      title: 'สำเร็จภารกิจวันนี้! 🔥',
+      message: `ต่อเนื่อง ${streak} วัน`,
+      stat: score,
+      showBadge: false,
+      primaryLabel: 'เล่นอีกครั้ง',
+      primaryAction: () => start('daily'),
+    });
+  }
+
+  function dailyFailed() {
+    AudioFx.gameOver();
+    showResult({
+      title: 'ยังไม่สำเร็จ',
+      message: `เป้าหมาย ${levelTarget} คะแนน`,
+      stat: score,
+      showBadge: false,
+      primaryLabel: 'ลองใหม่',
+      primaryAction: () => start('daily'),
+    });
+  }
+
   function start(newMode, opts = {}) {
     mode = newMode;
     grid = Board.create();
-    tray = Pieces.randomTray(3);
     score = 0;
     combo = 0;
     best = Storage.getBest();
 
     if (mode === 'level') {
+      pieceRng = null;
       levelNumber = opts.level;
       const lvl = Levels.get(levelNumber);
       levelTarget = lvl.target;
       movesLeft = lvl.moveLimit;
       dom.movesBox.classList.remove('hidden');
+    } else if (mode === 'daily') {
+      pieceRng = Daily.makeRng();
+      const challenge = Daily.getChallenge();
+      levelTarget = challenge.target;
+      movesLeft = challenge.moveLimit;
+      dom.movesBox.classList.remove('hidden');
     } else {
+      pieceRng = null;
       dom.movesBox.classList.add('hidden');
     }
+
+    tray = Pieces.randomTray(3, pieceRng || undefined);
 
     rerollsLeft = REROLL_LIMIT;
     updateRerollDom();
@@ -381,5 +418,6 @@ const Game = (() => {
     init,
     startEndless: () => start('endless'),
     startLevel: (n) => start('level', { level: n }),
+    startDaily: () => start('daily'),
   };
 })();

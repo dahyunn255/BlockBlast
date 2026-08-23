@@ -15,8 +15,21 @@ document.addEventListener('DOMContentLoaded', () => {
     screens[name].classList.remove('hidden');
   }
 
+  function updateDailyStatus() {
+    const statusEl = document.getElementById('dailyStatus');
+    const streak = Daily.getStreak();
+    if (Daily.isCompletedToday()) {
+      statusEl.textContent = `สำเร็จแล้ววันนี้! 🔥 ต่อเนื่อง ${streak} วัน`;
+    } else if (streak > 0) {
+      statusEl.textContent = `🔥 ต่อเนื่อง ${streak} วัน — เล่นวันนี้เพื่อรักษาสถิติ`;
+    } else {
+      statusEl.textContent = 'ยังไม่ได้เล่นวันนี้';
+    }
+  }
+
   function goHome() {
     document.getElementById('homeBest').textContent = Storage.getBest();
+    updateDailyStatus();
     showScreen('home');
   }
 
@@ -112,6 +125,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('levelSelectBackBtn').addEventListener('click', goHome);
+
+  document.getElementById('playDailyBtn').addEventListener('click', () => {
+    showScreen('game');
+    Game.startDaily();
+  });
 
   document.getElementById('achievementsBtn').addEventListener('click', () => {
     renderAchievements();
