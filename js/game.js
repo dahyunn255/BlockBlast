@@ -245,8 +245,8 @@ const Game = (() => {
     if (linesCleared > 0) {
       combo += 1;
       flashLineClear(rows, cols);
-      let bonus = linesCleared * 10 * combo;
-      if (linesCleared > 1) bonus += (linesCleared - 1) * 15;
+      let bonus = linesCleared * 20 * combo;
+      if (linesCleared > 1) bonus += (linesCleared - 1) * 30;
       score += bonus;
       Storage.bumpStat('linesCleared', linesCleared);
       Storage.setStatMax('bestCombo', combo);
