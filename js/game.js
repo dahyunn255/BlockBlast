@@ -137,9 +137,36 @@ const Game = (() => {
     dom.comboPopup.classList.add('show');
   }
 
+  function spawnClearParticles(cellEl, color) {
+    const rect = cellEl.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const count = 4;
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('div');
+      p.className = `clear-particle block-${color}`;
+      const angle = (Math.PI * 2 * i) / count + Math.random() * 0.8;
+      const dist = 20 + Math.random() * 20;
+      p.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
+      p.style.setProperty('--dy', `${Math.sin(angle) * dist}px`);
+      p.style.left = `${cx - 4}px`;
+      p.style.top = `${cy - 4}px`;
+      document.body.appendChild(p);
+      p.addEventListener('animationend', () => p.remove());
+    }
+  }
+
   function flashLineClear(rows, cols) {
-    for (const r of rows) for (let c = 0; c < SIZE; c++) cellEls[r][c].classList.add('clearing');
-    for (const c of cols) for (let r = 0; r < SIZE; r++) cellEls[r][c].classList.add('clearing');
+    const cellsToClear = new Set();
+    for (const r of rows) for (let c = 0; c < SIZE; c++) cellsToClear.add(r * SIZE + c);
+    for (const c of cols) for (let r = 0; r < SIZE; r++) cellsToClear.add(r * SIZE + c);
+    for (const key of cellsToClear) {
+      const r = Math.floor(key / SIZE);
+      const c = key % SIZE;
+      const el = cellEls[r][c];
+      spawnClearParticles(el, grid[r][c]);
+      el.classList.add('clearing');
+    }
   }
 
   function tryPlacePiece(piece, row, col) {
@@ -175,7 +202,7 @@ const Game = (() => {
         Board.clearLines(grid, rows, cols);
         renderBoard();
         afterMoveResolved();
-      }, 140);
+      }, 180);
     } else {
       combo = 0;
       afterMoveResolved();

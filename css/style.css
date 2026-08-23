@@ -271,12 +271,29 @@ body {
 }
 
 .cell.filled.clearing {
-  animation: line-clear 0.14s ease-out forwards;
+  animation: line-clear 0.18s ease-out forwards;
 }
 
 @keyframes line-clear {
-  0% { transform: scale(1); filter: brightness(2.2); }
-  100% { transform: scale(0.2); filter: brightness(2.2); opacity: 0; }
+  0% { transform: scale(1); filter: brightness(1); }
+  25% { transform: scale(1.18); filter: brightness(2.4); }
+  100% { transform: scale(0.1) rotate(25deg); filter: brightness(2.4); opacity: 0; }
+}
+
+.clear-particle {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, var(--c1), var(--c2));
+  pointer-events: none;
+  z-index: 980;
+  animation: particle-burst 0.42s ease-out forwards;
+}
+
+@keyframes particle-burst {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
 }
 
 .block, .cell.filled {
