@@ -217,6 +217,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('shopBackBtn').addEventListener('click', goHome);
 
+  // Hidden top-up: tap the home-screen coin pill 5 times within 1.5s.
+  (() => {
+    const pill = document.querySelector('#homeScreen .coin-pill');
+    let taps = 0;
+    let resetTimer = null;
+    pill.addEventListener('click', () => {
+      taps += 1;
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => { taps = 0; }, 1500);
+      if (taps < 5) return;
+      taps = 0;
+      Storage.addCoins(99999);
+      document.getElementById('homeCoins').textContent = Storage.getCoins();
+      pill.classList.remove('coin-cheat-pop');
+      void pill.offsetWidth;
+      pill.classList.add('coin-cheat-pop');
+      AudioFx.achievement();
+    });
+  })();
+
   Game.init({ onMenu: goHome });
 
   goHome();
