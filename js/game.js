@@ -1,8 +1,10 @@
 const Game = (() => {
+  const REROLL_LIMIT = 3;
   const dom = {};
   let mode = 'endless'; // 'endless' | 'level'
   let grid, tray, score, best, combo;
   let levelNumber, levelTarget, movesLeft;
+  let rerollsLeft;
   let cellEls = [];
   let previewCells = [];
   let onMenu = () => {};
@@ -25,6 +27,8 @@ const Game = (() => {
     dom.resultBadge = document.getElementById('resultBadge');
     dom.resultPrimaryBtn = document.getElementById('resultPrimaryBtn');
     dom.resultMenuBtn = document.getElementById('resultMenuBtn');
+    dom.rerollBtn = document.getElementById('rerollBtn');
+    dom.rerollCount = document.getElementById('rerollCount');
   }
 
   function buildBoardDom() {
@@ -209,6 +213,30 @@ const Game = (() => {
     }
   }
 
+  function updateRerollDom() {
+    dom.rerollCount.textContent = rerollsLeft;
+    dom.rerollBtn.disabled = rerollsLeft <= 0;
+  }
+
+  function checkBoardPlayable() {
+    if (Board.anyPieceFits(grid, tray)) return true;
+    if (mode === 'level') levelFailed(); else endGame();
+    return false;
+  }
+
+  function reroll() {
+    if (rerollsLeft <= 0) return;
+    rerollsLeft -= 1;
+    updateRerollDom();
+    tray = Pieces.randomTray(3);
+    renderTray();
+    AudioFx.reroll();
+    dom.tray.classList.remove('rerolling');
+    void dom.tray.offsetWidth;
+    dom.tray.classList.add('rerolling');
+    checkBoardPlayable();
+  }
+
   function afterMoveResolved() {
     if (tray.length === 0) {
       tray = Pieces.randomTray(3);
@@ -223,12 +251,14 @@ const Game = (() => {
     if (mode === 'level') {
       if (score >= levelTarget) {
         levelComplete();
-      } else if (movesLeft <= 0 || !Board.anyPieceFits(grid, tray)) {
-        levelFailed();
+        return;
       }
-    } else if (!Board.anyPieceFits(grid, tray)) {
-      endGame();
+      if (movesLeft <= 0) {
+        levelFailed();
+        return;
+      }
     }
+    checkBoardPlayable();
   }
 
   function showResult({ title, message, stat, showBadge, badgeText, primaryLabel, primaryAction }) {
@@ -303,6 +333,9 @@ const Game = (() => {
       dom.movesBox.classList.add('hidden');
     }
 
+    rerollsLeft = REROLL_LIMIT;
+    updateRerollDom();
+
     dom.resultOverlay.classList.add('hidden');
     buildBoardDom();
     renderBoard();
@@ -322,6 +355,7 @@ const Game = (() => {
       onMenu();
     });
     dom.menuBtn.addEventListener('click', onMenu);
+    dom.rerollBtn.addEventListener('click', reroll);
   }
 
   return {
