@@ -7,9 +7,12 @@ const Storage = (() => {
     STATS: 'blockblast.stats',
     ACHIEVEMENTS: 'blockblast.achievements',
     DAILY: 'blockblast.daily',
+    COINS: 'blockblast.coins',
+    OWNED_ITEMS: 'blockblast.ownedItems',
+    EQUIPPED: 'blockblast.equipped',
   };
 
-  const THEMES = ['theme-classic', 'theme-neon', 'theme-sunset'];
+  const THEMES = ['theme-classic', 'theme-neon', 'theme-sunset', 'theme-ocean', 'theme-forest'];
 
   function getBest() {
     return Number(localStorage.getItem(KEYS.BEST)) || 0;
@@ -107,10 +110,58 @@ const Storage = (() => {
     localStorage.setItem(KEYS.DAILY, JSON.stringify(status));
   }
 
+  function getCoins() {
+    return Number(localStorage.getItem(KEYS.COINS)) || 0;
+  }
+
+  function addCoins(amount) {
+    const total = getCoins() + amount;
+    localStorage.setItem(KEYS.COINS, String(total));
+    return total;
+  }
+
+  function spendCoins(amount) {
+    const current = getCoins();
+    if (current < amount) return false;
+    localStorage.setItem(KEYS.COINS, String(current - amount));
+    return true;
+  }
+
+  function getOwnedItems() {
+    try {
+      return JSON.parse(localStorage.getItem(KEYS.OWNED_ITEMS)) || [];
+    } catch {
+      return [];
+    }
+  }
+
+  function ownItem(id) {
+    const list = getOwnedItems();
+    if (list.includes(id)) return false;
+    list.push(id);
+    localStorage.setItem(KEYS.OWNED_ITEMS, JSON.stringify(list));
+    return true;
+  }
+
+  function getEquipped() {
+    try {
+      return { blockSkin: 'default', clearEffect: 'default', ...JSON.parse(localStorage.getItem(KEYS.EQUIPPED)) };
+    } catch {
+      return { blockSkin: 'default', clearEffect: 'default' };
+    }
+  }
+
+  function setEquipped(category, id) {
+    const equipped = getEquipped();
+    equipped[category] = id;
+    localStorage.setItem(KEYS.EQUIPPED, JSON.stringify(equipped));
+  }
+
   return {
     getBest, setBest, getTheme, setTheme, nextTheme, getMuted, setMuted,
     getUnlockedLevel, setUnlockedLevel, THEMES,
     getStats, bumpStat, setStatMax, getUnlockedAchievements, unlockAchievement,
     getDailyStatus, setDailyStatus,
+    getCoins, addCoins, spendCoins, getOwnedItems, ownItem, getEquipped, setEquipped,
   };
 })();

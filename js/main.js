@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     home: document.getElementById('homeScreen'),
     levelSelect: document.getElementById('levelSelectScreen'),
     achievements: document.getElementById('achievementsScreen'),
+    shop: document.getElementById('shopScreen'),
     game: document.getElementById('gameScreen'),
   };
 
@@ -29,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function goHome() {
     document.getElementById('homeBest').textContent = Storage.getBest();
+    document.getElementById('homeCoins').textContent = Storage.getCoins();
     updateDailyStatus();
     showScreen('home');
   }
@@ -77,7 +79,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function availableThemes() {
-    return Achievements.hasThemeUnlock() ? Storage.THEMES : Storage.THEMES.filter(t => t !== 'theme-sunset');
+    const owned = new Set(Storage.getOwnedItems());
+    return Storage.THEMES.filter(t => {
+      if (t === 'theme-classic' || t === 'theme-neon') return true;
+      if (t === 'theme-sunset') return Achievements.hasThemeUnlock();
+      return owned.has(t);
+    });
   }
 
   function applyTheme(theme) {
@@ -85,8 +92,79 @@ document.addEventListener('DOMContentLoaded', () => {
     app.classList.add(theme);
   }
 
+  function applySkin(skinId) {
+    Shop.ITEMS.filter(i => i.category === 'blockSkin').forEach(i => app.classList.remove(i.id));
+    if (skinId && skinId !== 'default') app.classList.add(skinId);
+  }
+
   function applyMuteIcon(muted) {
     muteBtn.textContent = muted ? '🔇' : '🔊';
+  }
+
+  function renderShop() {
+    document.getElementById('shopCoins').textContent = Storage.getCoins();
+    const containers = {
+      theme: document.getElementById('shopThemes'),
+      blockSkin: document.getElementById('shopSkins'),
+      clearEffect: document.getElementById('shopEffects'),
+    };
+    Object.values(containers).forEach(el => { el.innerHTML = ''; });
+
+    for (const item of Shop.list()) {
+      const card = document.createElement('div');
+      card.className = `shop-item${item.owned ? ' owned' : ''}${item.equipped ? ' equipped' : ''}`;
+
+      const swatch = document.createElement('div');
+      swatch.className = 'shop-item-swatch';
+      if (item.swatch) {
+        swatch.style.background = `linear-gradient(135deg, ${item.swatch.join(', ')})`;
+      } else if (item.icon) {
+        swatch.classList.add('shop-item-swatch-icon');
+        swatch.textContent = item.icon;
+      }
+
+      const text = document.createElement('div');
+      text.className = 'shop-item-text';
+      const name = document.createElement('div');
+      name.className = 'shop-item-name';
+      name.textContent = item.name;
+      const desc = document.createElement('div');
+      desc.className = 'shop-item-desc';
+      desc.textContent = item.desc;
+      text.append(name, desc);
+
+      const action = document.createElement('button');
+      action.className = 'shop-item-action';
+
+      function applyEquip() {
+        if (item.category === 'theme') applyTheme(item.id);
+        if (item.category === 'blockSkin') applySkin(item.id);
+      }
+
+      if (item.equipped) {
+        action.textContent = 'กำลังใช้งาน';
+        action.disabled = true;
+      } else if (item.owned) {
+        action.textContent = 'ใช้งาน';
+        action.addEventListener('click', () => {
+          Shop.equip(item.id);
+          applyEquip();
+          renderShop();
+        });
+      } else {
+        action.textContent = `ซื้อ ${item.price} 🪙`;
+        action.disabled = Storage.getCoins() < item.price;
+        action.addEventListener('click', () => {
+          if (Shop.buy(item.id).ok) {
+            applyEquip();
+            renderShop();
+          }
+        });
+      }
+
+      card.append(swatch, text, action);
+      containers[item.category].appendChild(card);
+    }
   }
 
   // Backfill: unlock any achievements already met by past progress (e.g. an existing
@@ -96,6 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const savedTheme = Storage.getTheme();
   const initialTheme = availableThemes().includes(savedTheme) ? savedTheme : 'theme-classic';
   applyTheme(initialTheme);
+  applySkin(Storage.getEquipped().blockSkin);
   AudioFx.setMuted(Storage.getMuted());
   applyMuteIcon(Storage.getMuted());
 
@@ -137,6 +216,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('achievementsBackBtn').addEventListener('click', goHome);
+
+  document.getElementById('shopBtn').addEventListener('click', () => {
+    renderShop();
+    showScreen('shop');
+  });
+
+  document.getElementById('shopBackBtn').addEventListener('click', goHome);
 
   Game.init({ onMenu: goHome });
 

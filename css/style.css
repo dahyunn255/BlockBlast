@@ -53,6 +53,52 @@
   --overlay-bg: rgba(24, 8, 32, 0.85);
 }
 
+.theme-ocean {
+  --bg: #061a26;
+  --panel: #0f3d5c;
+  --text: #e6f7ff;
+  --text-dim: #8fbdd6;
+  --board-bg: #082436;
+  --cell-bg: #123c54;
+  --cell-border: #1a567a;
+  --accent: #4fc3e8;
+  --overlay-bg: rgba(3, 12, 20, 0.85);
+}
+
+.theme-forest {
+  --bg: #101b0e;
+  --panel: #1c3018;
+  --text: #eaf7e4;
+  --text-dim: #9fc593;
+  --board-bg: #14230f;
+  --cell-bg: #223a1c;
+  --cell-border: #35542c;
+  --accent: #7bc95f;
+  --overlay-bg: rgba(8, 14, 6, 0.85);
+}
+
+.skin-pastel {
+  --block-blue: #a8d8ff; --block-blue-dark: #7fb8e8;
+  --block-green: #b8f2c8; --block-green-dark: #8fd9a8;
+  --block-orange: #ffd9a8; --block-orange-dark: #f2b871;
+  --block-purple: #d9b8f2; --block-purple-dark: #bb8fd9;
+  --block-red: #ffb8b8; --block-red-dark: #f28f8f;
+  --block-teal: #a8f2e8; --block-teal-dark: #7fd9cc;
+  --block-yellow: #fff2a8; --block-yellow-dark: #f2d971;
+  --block-pink: #ffc8e0; --block-pink-dark: #f299c2;
+}
+
+.skin-mono {
+  --block-blue: #7a8699; --block-blue-dark: #5a6478;
+  --block-green: #8a96a8; --block-green-dark: #6a7688;
+  --block-orange: #9aa6b8; --block-orange-dark: #7a8698;
+  --block-purple: #6a7688; --block-purple-dark: #4a5468;
+  --block-red: #8698ac; --block-red-dark: #66768c;
+  --block-teal: #96a2b4; --block-teal-dark: #768294;
+  --block-yellow: #aab4c4; --block-yellow-dark: #8a94a4;
+  --block-pink: #7688a0; --block-pink-dark: #566880;
+}
+
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 html, body {
@@ -93,6 +139,32 @@ body {
   padding: 24px;
   max-width: 420px;
   width: 100%;
+}
+
+.coin-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--panel);
+  color: var(--text);
+  font-weight: 800;
+  font-size: 14px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.home-content .coin-pill {
+  margin-bottom: 16px;
+}
+
+.shop-coin-pill {
+  margin-left: auto;
+}
+
+.game-coin-pill {
+  font-size: 13px;
+  padding: 7px 12px;
 }
 
 .game-title {
@@ -140,8 +212,14 @@ body {
 .mode-btn-level { background: linear-gradient(135deg, var(--block-orange), var(--block-orange-dark)); }
 .mode-btn-daily { background: linear-gradient(135deg, var(--block-purple), var(--block-purple-dark)); }
 
-.text-link-btn {
+.home-link-row {
   margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.text-link-btn {
   border: none;
   background: transparent;
   color: var(--text-dim);
@@ -242,6 +320,92 @@ body {
   font-size: 12px;
   color: var(--text-dim);
   margin-top: 2px;
+}
+
+.shop-body {
+  padding: 4px 16px 24px;
+  overflow-y: auto;
+}
+
+.shop-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+  margin: 18px 0 8px;
+}
+
+.shop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shop-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--panel);
+  border-radius: 14px;
+  padding: 10px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.shop-item.equipped {
+  box-shadow: inset 0 0 0 2px var(--accent), 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.shop-item-swatch {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.shop-item-swatch-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  background: var(--cell-bg);
+}
+
+.shop-item-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.shop-item-name {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.shop-item-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.shop-item-action {
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 9px 12px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.shop-item-action:disabled {
+  background: var(--cell-border);
+  color: var(--text-dim);
+}
+
+.shop-item.equipped .shop-item-action {
+  background: transparent;
+  color: var(--accent);
 }
 
 .topbar {
@@ -387,7 +551,8 @@ body {
 
 .tray-toolbar {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
   padding: 0 4px 8px;
 }
 

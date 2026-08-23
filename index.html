@@ -19,6 +19,7 @@
   <!-- Home screen -->
   <section id="homeScreen" class="screen">
     <div class="home-content">
+      <div class="coin-pill">🪙 <span id="homeCoins">0</span></div>
       <h1 class="game-title">Block Blast</h1>
       <p class="game-subtitle">10 × 10</p>
       <div class="home-buttons">
@@ -35,7 +36,10 @@
           <span id="dailyStatus" class="mode-btn-desc">ยังไม่ได้เล่นวันนี้</span>
         </button>
       </div>
-      <button id="achievementsBtn" class="text-link-btn">🏆 ความสำเร็จ</button>
+      <div class="home-link-row">
+        <button id="achievementsBtn" class="text-link-btn">🏆 ความสำเร็จ</button>
+        <button id="shopBtn" class="text-link-btn">🛒 ร้านค้า</button>
+      </div>
       <div class="home-footer">
         <span class="label">BEST (Endless)</span>
         <span id="homeBest" class="value">0</span>
@@ -59,6 +63,23 @@
       <h2>ความสำเร็จ</h2>
     </header>
     <div id="achievementList" class="achievement-list"></div>
+  </section>
+
+  <!-- Shop screen -->
+  <section id="shopScreen" class="screen hidden">
+    <header class="sub-topbar">
+      <button id="shopBackBtn" class="icon-btn" aria-label="Back">←</button>
+      <h2>ร้านค้า</h2>
+      <div class="coin-pill shop-coin-pill">🪙 <span id="shopCoins">0</span></div>
+    </header>
+    <div class="shop-body">
+      <h3 class="shop-section-title">ธีม</h3>
+      <div id="shopThemes" class="shop-list"></div>
+      <h3 class="shop-section-title">สีบล็อก</h3>
+      <div id="shopSkins" class="shop-list"></div>
+      <h3 class="shop-section-title">เอฟเฟกต์ตอนบล็อกหาย</h3>
+      <div id="shopEffects" class="shop-list"></div>
+    </div>
   </section>
 
   <!-- Game screen -->
@@ -98,6 +119,7 @@
 
     <footer class="tray-wrap">
       <div class="tray-toolbar">
+        <div class="coin-pill game-coin-pill">🪙 <span id="gameCoins">0</span></div>
         <button id="rerollBtn" class="reroll-btn">
           <span class="reroll-icon">🔀</span>
           <span>รีโรล</span>
@@ -126,6 +148,7 @@
 
 <script src="js/storage.js"></script>
 <script src="js/achievements.js"></script>
+<script src="js/shop.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/pieces.js"></script>
 <script src="js/board.js"></script>

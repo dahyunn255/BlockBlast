@@ -32,6 +32,11 @@ const Game = (() => {
     dom.rerollCount = document.getElementById('rerollCount');
     dom.achievementToast = document.getElementById('achievementToast');
     dom.achievementToastTitle = document.getElementById('achievementToastTitle');
+    dom.gameCoins = document.getElementById('gameCoins');
+  }
+
+  function updateCoinDom() {
+    dom.gameCoins.textContent = Storage.getCoins();
   }
 
   function buildBoardDom() {
@@ -144,20 +149,31 @@ const Game = (() => {
     dom.comboPopup.classList.add('show');
   }
 
+  const CLEAR_EFFECTS = {
+    default: { count: 4, size: 8, distMin: 20, distMax: 40, multiColor: false, mixedShape: false },
+    'effect-confetti': { count: 8, size: 7, distMin: 24, distMax: 50, multiColor: true, mixedShape: true },
+    'effect-firework': { count: 6, size: 11, distMin: 30, distMax: 60, multiColor: false, mixedShape: false },
+  };
+
   function spawnClearParticles(cellEl, color) {
+    const effectId = Storage.getEquipped().clearEffect || 'default';
+    const cfg = CLEAR_EFFECTS[effectId] || CLEAR_EFFECTS.default;
     const rect = cellEl.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
-    const count = 4;
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < cfg.count; i++) {
       const p = document.createElement('div');
-      p.className = `clear-particle block-${color}`;
-      const angle = (Math.PI * 2 * i) / count + Math.random() * 0.8;
-      const dist = 20 + Math.random() * 20;
+      const particleColor = cfg.multiColor ? PIECE_COLORS[Math.floor(Math.random() * PIECE_COLORS.length)] : color;
+      p.className = `clear-particle block-${particleColor}`;
+      if (cfg.mixedShape && Math.random() < 0.5) p.style.borderRadius = '50%';
+      const angle = (Math.PI * 2 * i) / cfg.count + Math.random() * 0.8;
+      const dist = cfg.distMin + Math.random() * (cfg.distMax - cfg.distMin);
       p.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
       p.style.setProperty('--dy', `${Math.sin(angle) * dist}px`);
-      p.style.left = `${cx - 4}px`;
-      p.style.top = `${cy - 4}px`;
+      p.style.width = `${cfg.size}px`;
+      p.style.height = `${cfg.size}px`;
+      p.style.left = `${cx - cfg.size / 2}px`;
+      p.style.top = `${cy - cfg.size / 2}px`;
       document.body.appendChild(p);
       p.addEventListener('animationend', () => p.remove());
     }
@@ -201,6 +217,8 @@ const Game = (() => {
       score += bonus;
       Storage.bumpStat('linesCleared', linesCleared);
       Storage.setStatMax('bestCombo', combo);
+      Storage.addCoins(linesCleared * 2);
+      updateCoinDom();
       AudioFx.clearLines(linesCleared);
       if (combo > 1) {
         showComboPopup(`COMBO x${combo}  +${bonus}`);
@@ -253,8 +271,14 @@ const Game = (() => {
     AudioFx.achievement();
   }
 
+  const ACHIEVEMENT_COIN_REWARD = 15;
+
   function checkAchievements() {
     const newlyUnlocked = Achievements.checkNewUnlocks({ bestScore: Math.max(Storage.getBest(), best) });
+    if (newlyUnlocked.length > 0) {
+      Storage.addCoins(newlyUnlocked.length * ACHIEVEMENT_COIN_REWARD);
+      updateCoinDom();
+    }
     newlyUnlocked.forEach((a, i) => setTimeout(() => showAchievementToast(a), i * 1800));
   }
 
@@ -313,6 +337,8 @@ const Game = (() => {
 
   function levelComplete() {
     Storage.setUnlockedLevel(levelNumber + 1);
+    Storage.addCoins(30);
+    updateCoinDom();
     AudioFx.levelComplete();
     const hasNext = levelNumber < Levels.TOTAL;
     showResult({
@@ -339,6 +365,8 @@ const Game = (() => {
 
   function dailyComplete() {
     const streak = Daily.markCompleted();
+    Storage.addCoins(40);
+    updateCoinDom();
     AudioFx.levelComplete();
     showResult({
       title: 'สำเร็จภารกิจวันนี้! 🔥',
@@ -391,6 +419,7 @@ const Game = (() => {
 
     rerollsLeft = REROLL_LIMIT;
     updateRerollDom();
+    updateCoinDom();
 
     dom.resultOverlay.classList.add('hidden');
     buildBoardDom();
