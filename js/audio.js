@@ -51,6 +51,12 @@ const AudioFx = (() => {
     tone({ freq: 400, slideTo: 100, duration: 0.6, type: 'sine', gain: 0.15 });
   }
 
+  function levelComplete() {
+    [520, 660, 780, 1040].forEach((freq, i) => {
+      tone({ freq, duration: 0.22, type: 'sine', gain: 0.15, delay: i * 0.08 });
+    });
+  }
+
   function setMuted(value) {
     muted = value;
     Storage.setMuted(value);
@@ -60,5 +66,5 @@ const AudioFx = (() => {
     return muted;
   }
 
-  return { place, invalid, clearLines, combo, gameOver, setMuted, isMuted };
+  return { place, invalid, clearLines, combo, gameOver, levelComplete, setMuted, isMuted };
 })();

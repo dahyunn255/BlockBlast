@@ -1,19 +1,30 @@
 const Game = (() => {
   const dom = {};
+  let mode = 'endless'; // 'endless' | 'level'
   let grid, tray, score, best, combo;
+  let levelNumber, levelTarget, movesLeft;
   let cellEls = [];
   let previewCells = [];
+  let onMenu = () => {};
+  let resultPrimaryAction = null;
 
   function cacheDom() {
     dom.board = document.getElementById('board');
     dom.tray = document.getElementById('tray');
     dom.score = document.getElementById('score');
-    dom.best = document.getElementById('best');
+    dom.secondaryLabel = document.getElementById('secondaryLabel');
+    dom.secondaryValue = document.getElementById('secondaryValue');
+    dom.movesBox = document.getElementById('movesBox');
+    dom.movesValue = document.getElementById('movesValue');
+    dom.menuBtn = document.getElementById('menuBtn');
     dom.comboPopup = document.getElementById('comboPopup');
-    dom.overlay = document.getElementById('gameOverOverlay');
-    dom.finalScore = document.getElementById('finalScore');
-    dom.newBestBadge = document.getElementById('newBestBadge');
-    dom.restartBtn = document.getElementById('restartBtn');
+    dom.resultOverlay = document.getElementById('resultOverlay');
+    dom.resultTitle = document.getElementById('resultTitle');
+    dom.resultMessage = document.getElementById('resultMessage');
+    dom.resultStat = document.getElementById('resultStat');
+    dom.resultBadge = document.getElementById('resultBadge');
+    dom.resultPrimaryBtn = document.getElementById('resultPrimaryBtn');
+    dom.resultMenuBtn = document.getElementById('resultMenuBtn');
   }
 
   function buildBoardDom() {
@@ -108,7 +119,14 @@ const Game = (() => {
 
   function updateScoreDom() {
     dom.score.textContent = score;
-    dom.best.textContent = best;
+    if (mode === 'level') {
+      dom.secondaryLabel.textContent = 'GOAL';
+      dom.secondaryValue.textContent = levelTarget;
+      dom.movesValue.textContent = movesLeft;
+    } else {
+      dom.secondaryLabel.textContent = 'BEST';
+      dom.secondaryValue.textContent = best;
+    }
   }
 
   function showComboPopup(text) {
@@ -133,6 +151,7 @@ const Game = (() => {
     Board.place(grid, piece.cells, row, col, piece.color);
     score += piece.cells.length;
     tray = tray.filter(p => p.id !== piece.id);
+    if (mode === 'level') movesLeft = Math.max(0, movesLeft - 1);
     renderBoard();
     AudioFx.place();
 
@@ -156,7 +175,7 @@ const Game = (() => {
         Board.clearLines(grid, rows, cols);
         renderBoard();
         afterMoveResolved();
-      }, 260);
+      }, 140);
     } else {
       combo = 0;
       afterMoveResolved();
@@ -174,40 +193,113 @@ const Game = (() => {
     updateScoreDom();
     renderTray();
 
-    if (!Board.anyPieceFits(grid, tray)) {
+    if (mode === 'level') {
+      if (score >= levelTarget) {
+        levelComplete();
+      } else if (movesLeft <= 0 || !Board.anyPieceFits(grid, tray)) {
+        levelFailed();
+      }
+    } else if (!Board.anyPieceFits(grid, tray)) {
       endGame();
     }
+  }
+
+  function showResult({ title, message, stat, showBadge, badgeText, primaryLabel, primaryAction }) {
+    dom.resultTitle.textContent = title;
+    dom.resultMessage.textContent = message;
+    dom.resultStat.textContent = stat;
+    dom.resultBadge.textContent = badgeText || '';
+    dom.resultBadge.classList.toggle('hidden', !showBadge);
+    dom.resultPrimaryBtn.textContent = primaryLabel;
+    resultPrimaryAction = primaryAction;
+    dom.resultOverlay.classList.remove('hidden');
   }
 
   function endGame() {
     const isNewBest = score >= Storage.getBest();
     if (isNewBest) Storage.setBest(score);
     best = Storage.getBest();
-    dom.finalScore.textContent = score;
-    dom.newBestBadge.classList.toggle('hidden', !isNewBest);
-    dom.overlay.classList.remove('hidden');
     updateScoreDom();
     AudioFx.gameOver();
+    showResult({
+      title: 'Game Over',
+      message: 'คะแนนของคุณ',
+      stat: score,
+      showBadge: isNewBest,
+      badgeText: '🏆 สถิติใหม่!',
+      primaryLabel: 'เล่นอีกครั้ง',
+      primaryAction: () => start('endless'),
+    });
   }
 
-  function start() {
+  function levelComplete() {
+    Storage.setUnlockedLevel(levelNumber + 1);
+    AudioFx.levelComplete();
+    const hasNext = levelNumber < Levels.TOTAL;
+    showResult({
+      title: 'ผ่านด่าน! ⭐',
+      message: `ด่านที่ ${levelNumber}`,
+      stat: score,
+      showBadge: false,
+      primaryLabel: hasNext ? 'ด่านต่อไป' : 'เล่นอีกครั้ง',
+      primaryAction: () => start('level', { level: hasNext ? levelNumber + 1 : levelNumber }),
+    });
+  }
+
+  function levelFailed() {
+    AudioFx.gameOver();
+    showResult({
+      title: 'ไม่ผ่านด่าน',
+      message: `เป้าหมาย ${levelTarget} คะแนน`,
+      stat: score,
+      showBadge: false,
+      primaryLabel: 'ลองใหม่',
+      primaryAction: () => start('level', { level: levelNumber }),
+    });
+  }
+
+  function start(newMode, opts = {}) {
+    mode = newMode;
     grid = Board.create();
     tray = Pieces.randomTray(3);
     score = 0;
     combo = 0;
     best = Storage.getBest();
-    dom.overlay.classList.add('hidden');
+
+    if (mode === 'level') {
+      levelNumber = opts.level;
+      const lvl = Levels.get(levelNumber);
+      levelTarget = lvl.target;
+      movesLeft = lvl.moveLimit;
+      dom.movesBox.classList.remove('hidden');
+    } else {
+      dom.movesBox.classList.add('hidden');
+    }
+
+    dom.resultOverlay.classList.add('hidden');
     buildBoardDom();
     renderBoard();
     renderTray();
     updateScoreDom();
   }
 
-  function init() {
+  function init(handlers = {}) {
     cacheDom();
-    dom.restartBtn.addEventListener('click', start);
-    start();
+    onMenu = handlers.onMenu || (() => {});
+    dom.resultPrimaryBtn.addEventListener('click', () => {
+      dom.resultOverlay.classList.add('hidden');
+      if (resultPrimaryAction) resultPrimaryAction();
+    });
+    dom.resultMenuBtn.addEventListener('click', () => {
+      dom.resultOverlay.classList.add('hidden');
+      onMenu();
+    });
+    dom.menuBtn.addEventListener('click', onMenu);
   }
 
-  return { init, restart: start };
+  return {
+    init,
+    startEndless: () => start('endless'),
+    startLevel: (n) => start('level', { level: n }),
+  };
 })();

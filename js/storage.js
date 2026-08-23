@@ -3,6 +3,7 @@ const Storage = (() => {
     BEST: 'blockblast.best',
     THEME: 'blockblast.theme',
     MUTED: 'blockblast.muted',
+    UNLOCKED_LEVEL: 'blockblast.unlockedLevel',
   };
 
   const THEMES = ['theme-classic', 'theme-neon'];
@@ -37,5 +38,18 @@ const Storage = (() => {
     localStorage.setItem(KEYS.MUTED, muted ? '1' : '0');
   }
 
-  return { getBest, setBest, getTheme, setTheme, nextTheme, getMuted, setMuted, THEMES };
+  function getUnlockedLevel() {
+    return Number(localStorage.getItem(KEYS.UNLOCKED_LEVEL)) || 1;
+  }
+
+  function setUnlockedLevel(level) {
+    if (level > getUnlockedLevel()) {
+      localStorage.setItem(KEYS.UNLOCKED_LEVEL, String(level));
+    }
+  }
+
+  return {
+    getBest, setBest, getTheme, setTheme, nextTheme, getMuted, setMuted,
+    getUnlockedLevel, setUnlockedLevel, THEMES,
+  };
 })();
