@@ -79,12 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function availableThemes() {
-    const owned = new Set(Storage.getOwnedItems());
-    return Storage.THEMES.filter(t => {
-      if (t === 'theme-classic' || t === 'theme-neon') return true;
-      if (t === 'theme-sunset') return Achievements.hasThemeUnlock();
-      return owned.has(t);
-    });
+    return Storage.THEMES.filter(t => t !== 'theme-sunset' || Achievements.hasThemeUnlock());
   }
 
   function applyTheme(theme) {
@@ -104,7 +99,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderShop() {
     document.getElementById('shopCoins').textContent = Storage.getCoins();
     const containers = {
-      theme: document.getElementById('shopThemes'),
       blockSkin: document.getElementById('shopSkins'),
       clearEffect: document.getElementById('shopEffects'),
     };
@@ -137,7 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
       action.className = 'shop-item-action';
 
       function applyEquip() {
-        if (item.category === 'theme') applyTheme(item.id);
         if (item.category === 'blockSkin') applySkin(item.id);
       }
 

@@ -67,6 +67,27 @@ const AudioFx = (() => {
     });
   }
 
+  function popCrack(count) {
+    for (let i = 0; i < Math.min(count, 4); i++) {
+      tone({ freq: 900 - i * 80, duration: 0.05, type: 'square', gain: 0.14, delay: i * 0.05 });
+      tone({ freq: 180, duration: 0.05, type: 'square', gain: 0.09, delay: i * 0.05 + 0.02 });
+    }
+  }
+
+  function beepPulse(count) {
+    for (let i = 0; i < Math.min(count, 4); i++) {
+      tone({ freq: 1200, duration: 0.08, type: 'sine', gain: 0.12, delay: i * 0.09 });
+      tone({ freq: 1800, duration: 0.06, type: 'sine', gain: 0.1, delay: i * 0.09 + 0.05 });
+    }
+  }
+
+  function chiptune(count) {
+    const notes = [523, 659, 784, 1047];
+    for (let i = 0; i < Math.min(count, notes.length); i++) {
+      tone({ freq: notes[i], duration: 0.09, type: 'square', gain: 0.12, delay: i * 0.06 });
+    }
+  }
+
   function setMuted(value) {
     muted = value;
     Storage.setMuted(value);
@@ -76,5 +97,8 @@ const AudioFx = (() => {
     return muted;
   }
 
-  return { place, invalid, clearLines, combo, gameOver, levelComplete, reroll, achievement, setMuted, isMuted };
+  return {
+    place, invalid, clearLines, combo, gameOver, levelComplete, reroll, achievement,
+    popCrack, beepPulse, chiptune, setMuted, isMuted,
+  };
 })();

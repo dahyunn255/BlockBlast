@@ -150,14 +150,24 @@ const Game = (() => {
   }
 
   const CLEAR_EFFECTS = {
-    default: { count: 4, size: 8, distMin: 20, distMax: 40, multiColor: false, mixedShape: false },
-    'effect-confetti': { count: 8, size: 7, distMin: 24, distMax: 50, multiColor: true, mixedShape: true },
-    'effect-firework': { count: 6, size: 11, distMin: 30, distMax: 60, multiColor: false, mixedShape: false },
+    default: { kind: 'particles', count: 4, size: 8, distMin: 20, distMax: 40, multiColor: false, shape: 'round' },
+    'effect-pop': { kind: 'particles', count: 10, size: 9, distMin: 26, distMax: 55, multiColor: true, shape: 'shard' },
+    'effect-pulse': { kind: 'ring' },
+    'effect-chiptune': { kind: 'particles', count: 9, size: 7, distMin: 22, distMax: 46, multiColor: false, shape: 'pixel' },
   };
 
-  function spawnClearParticles(cellEl, color) {
-    const effectId = Storage.getEquipped().clearEffect || 'default';
-    const cfg = CLEAR_EFFECTS[effectId] || CLEAR_EFFECTS.default;
+  function spawnPulseRing(cellEl, color) {
+    const rect = cellEl.getBoundingClientRect();
+    const ring = document.createElement('div');
+    ring.className = 'pulse-ring';
+    ring.style.left = `${rect.left + rect.width / 2}px`;
+    ring.style.top = `${rect.top + rect.height / 2}px`;
+    ring.style.setProperty('--ring-color', `var(--block-${color})`);
+    document.body.appendChild(ring);
+    ring.addEventListener('animationend', () => ring.remove());
+  }
+
+  function spawnParticleBurst(cellEl, color, cfg) {
     const rect = cellEl.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
@@ -165,7 +175,12 @@ const Game = (() => {
       const p = document.createElement('div');
       const particleColor = cfg.multiColor ? PIECE_COLORS[Math.floor(Math.random() * PIECE_COLORS.length)] : color;
       p.className = `clear-particle block-${particleColor}`;
-      if (cfg.mixedShape && Math.random() < 0.5) p.style.borderRadius = '50%';
+      if (cfg.shape === 'shard') {
+        p.classList.add('shard');
+        p.style.setProperty('--rot', `${Math.random() * 360}deg`);
+      } else if (cfg.shape === 'pixel') {
+        p.classList.add('pixel');
+      }
       const angle = (Math.PI * 2 * i) / cfg.count + Math.random() * 0.8;
       const dist = cfg.distMin + Math.random() * (cfg.distMax - cfg.distMin);
       p.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
@@ -179,6 +194,24 @@ const Game = (() => {
     }
   }
 
+  function spawnClearEffect(cellEl, color) {
+    const effectId = Storage.getEquipped().clearEffect || 'default';
+    const cfg = CLEAR_EFFECTS[effectId] || CLEAR_EFFECTS.default;
+    if (cfg.kind === 'ring') {
+      spawnPulseRing(cellEl, color);
+    } else {
+      spawnParticleBurst(cellEl, color, cfg);
+    }
+  }
+
+  function playClearSound(linesCleared) {
+    const effectId = Storage.getEquipped().clearEffect || 'default';
+    if (effectId === 'effect-pop') AudioFx.popCrack(linesCleared);
+    else if (effectId === 'effect-pulse') AudioFx.beepPulse(linesCleared);
+    else if (effectId === 'effect-chiptune') AudioFx.chiptune(linesCleared);
+    else AudioFx.clearLines(linesCleared);
+  }
+
   function flashLineClear(rows, cols) {
     const cellsToClear = new Set();
     for (const r of rows) for (let c = 0; c < SIZE; c++) cellsToClear.add(r * SIZE + c);
@@ -187,7 +220,7 @@ const Game = (() => {
       const r = Math.floor(key / SIZE);
       const c = key % SIZE;
       const el = cellEls[r][c];
-      spawnClearParticles(el, grid[r][c]);
+      spawnClearEffect(el, grid[r][c]);
       el.classList.add('clearing');
     }
   }
@@ -219,7 +252,7 @@ const Game = (() => {
       Storage.setStatMax('bestCombo', combo);
       Storage.addCoins(linesCleared * 2);
       updateCoinDom();
-      AudioFx.clearLines(linesCleared);
+      playClearSound(linesCleared);
       if (combo > 1) {
         showComboPopup(`COMBO x${combo}  +${bonus}`);
         AudioFx.combo(combo);

@@ -1,27 +1,27 @@
 const SHOP_ITEMS = [
   {
-    id: 'theme-ocean', category: 'theme', name: 'Ocean', desc: 'ธีมโทนสีฟ้าน้ำทะเล',
-    price: 150, swatch: ['#0f3d5c', '#1a6b96', '#4fc3e8'],
+    id: 'skin-pop', category: 'blockSkin', name: 'Pop! Crack!', desc: 'บล็อกสีสดใสสไตล์การ์ตูน',
+    price: 100, swatch: ['#ff3b3b', '#ffe23b', '#2f8fff', '#3ddc61'],
   },
   {
-    id: 'theme-forest', category: 'theme', name: 'Forest', desc: 'ธีมโทนสีเขียวป่าไม้',
-    price: 150, swatch: ['#16241a', '#3d6b2f', '#7bc95f'],
+    id: 'skin-neon', category: 'blockSkin', name: 'Beep Pulse', desc: 'บล็อกนีออนเรืองแสง',
+    price: 150, swatch: ['#00e5ff', '#d63bff', '#ff2ee0', '#39ff9d'],
   },
   {
-    id: 'skin-pastel', category: 'blockSkin', name: 'Pastel', desc: 'สีบล็อกโทนพาสเทลนุ่มนวล',
-    price: 100, swatch: ['#a8d8ff', '#b8f2c8', '#ffd9a8', '#d9b8f2'],
+    id: 'skin-chiptune', category: 'blockSkin', name: 'Chiptune', desc: 'บล็อกพิกเซลสไตล์ 8-bit',
+    price: 150, swatch: ['#8955c9', '#52a447', '#e0c23a', '#e8823a'],
   },
   {
-    id: 'skin-mono', category: 'blockSkin', name: 'Mono', desc: 'สีบล็อกโทนเดียวมินิมอล',
-    price: 120, swatch: ['#7a8699', '#8a96a8', '#9aa6b8', '#6a7688'],
+    id: 'effect-pop', category: 'clearEffect', name: 'Pop! Crack!', desc: 'เอฟเฟกต์ระเบิดกระจายเป็นเศษ พร้อมเสียง Pop!',
+    price: 100, icon: '💥',
   },
   {
-    id: 'effect-confetti', category: 'clearEffect', name: 'Confetti', desc: 'เอฟเฟกต์กระดาษสีสันสดใสตอนบล็อกหาย',
-    price: 100, icon: '🎉',
+    id: 'effect-pulse', category: 'clearEffect', name: 'Beep Pulse', desc: 'เอฟเฟกต์คลื่นพลังงานนีออน พร้อมเสียง Beep',
+    price: 150, icon: '💫',
   },
   {
-    id: 'effect-firework', category: 'clearEffect', name: 'Firework', desc: 'เอฟเฟกต์พลุระเบิดใหญ่ตอนบล็อกหาย',
-    price: 150, icon: '🎆',
+    id: 'effect-chiptune', category: 'clearEffect', name: 'Chiptune', desc: 'เอฟเฟกต์พิกเซลสไตล์ 8-bit พร้อมเสียงชิปทูน',
+    price: 150, icon: '🕹️',
   },
 ];
 
@@ -29,22 +29,17 @@ const Shop = (() => {
   function list() {
     const owned = new Set(Storage.getOwnedItems());
     const equipped = Storage.getEquipped();
-    const currentTheme = Storage.getTheme();
     return SHOP_ITEMS.map(item => ({
       ...item,
       owned: owned.has(item.id),
-      equipped: item.category === 'theme' ? currentTheme === item.id : equipped[item.category] === item.id,
+      equipped: equipped[item.category] === item.id,
     }));
   }
 
   function equip(id) {
     const item = SHOP_ITEMS.find(i => i.id === id);
     if (!item) return false;
-    if (item.category === 'theme') {
-      Storage.setTheme(id);
-    } else {
-      Storage.setEquipped(item.category, id);
-    }
+    Storage.setEquipped(item.category, id);
     return true;
   }
 

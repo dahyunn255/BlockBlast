@@ -53,50 +53,56 @@
   --overlay-bg: rgba(24, 8, 32, 0.85);
 }
 
-.theme-ocean {
-  --bg: #061a26;
-  --panel: #0f3d5c;
-  --text: #e6f7ff;
-  --text-dim: #8fbdd6;
-  --board-bg: #082436;
-  --cell-bg: #123c54;
-  --cell-border: #1a567a;
-  --accent: #4fc3e8;
-  --overlay-bg: rgba(3, 12, 20, 0.85);
+.skin-pop {
+  --block-blue: #2f8fff; --block-blue-dark: #1a5fcc;
+  --block-green: #3ddc61; --block-green-dark: #1fa843;
+  --block-orange: #ff9d2f; --block-orange-dark: #e6720a;
+  --block-purple: #b544e0; --block-purple-dark: #8a1fb8;
+  --block-red: #ff3b3b; --block-red-dark: #cc1818;
+  --block-teal: #21dbc7; --block-teal-dark: #0fa896;
+  --block-yellow: #ffe23b; --block-yellow-dark: #e0b800;
+  --block-pink: #ff5cad; --block-pink-dark: #e02f85;
 }
 
-.theme-forest {
-  --bg: #101b0e;
-  --panel: #1c3018;
-  --text: #eaf7e4;
-  --text-dim: #9fc593;
-  --board-bg: #14230f;
-  --cell-bg: #223a1c;
-  --cell-border: #35542c;
-  --accent: #7bc95f;
-  --overlay-bg: rgba(8, 14, 6, 0.85);
+.skin-neon {
+  --block-blue: #00e5ff; --block-blue-dark: #0090b3;
+  --block-green: #39ff9d; --block-green-dark: #0dcc73;
+  --block-orange: #ff9d00; --block-orange-dark: #cc7500;
+  --block-purple: #d63bff; --block-purple-dark: #a300cc;
+  --block-red: #ff3b6b; --block-red-dark: #cc0d42;
+  --block-teal: #00fff2; --block-teal-dark: #00b3a8;
+  --block-yellow: #faff00; --block-yellow-dark: #c2c700;
+  --block-pink: #ff2ee0; --block-pink-dark: #c700ad;
 }
 
-.skin-pastel {
-  --block-blue: #a8d8ff; --block-blue-dark: #7fb8e8;
-  --block-green: #b8f2c8; --block-green-dark: #8fd9a8;
-  --block-orange: #ffd9a8; --block-orange-dark: #f2b871;
-  --block-purple: #d9b8f2; --block-purple-dark: #bb8fd9;
-  --block-red: #ffb8b8; --block-red-dark: #f28f8f;
-  --block-teal: #a8f2e8; --block-teal-dark: #7fd9cc;
-  --block-yellow: #fff2a8; --block-yellow-dark: #f2d971;
-  --block-pink: #ffc8e0; --block-pink-dark: #f299c2;
+.skin-neon .block,
+.skin-neon .cell.filled {
+  box-shadow:
+    inset 0 -3px 0 rgba(0, 0, 0, 0.25),
+    inset 0 2px 0 rgba(255, 255, 255, 0.35),
+    0 0 10px 2px var(--c1),
+    0 0 2px 1px #fff;
 }
 
-.skin-mono {
-  --block-blue: #7a8699; --block-blue-dark: #5a6478;
-  --block-green: #8a96a8; --block-green-dark: #6a7688;
-  --block-orange: #9aa6b8; --block-orange-dark: #7a8698;
-  --block-purple: #6a7688; --block-purple-dark: #4a5468;
-  --block-red: #8698ac; --block-red-dark: #66768c;
-  --block-teal: #96a2b4; --block-teal-dark: #768294;
-  --block-yellow: #aab4c4; --block-yellow-dark: #8a94a4;
-  --block-pink: #7688a0; --block-pink-dark: #566880;
+.skin-chiptune {
+  --block-blue: #4062bb; --block-blue-dark: #24346b;
+  --block-green: #52a447; --block-green-dark: #2c6b23;
+  --block-orange: #e8823a; --block-orange-dark: #a8541c;
+  --block-purple: #8955c9; --block-purple-dark: #542f85;
+  --block-red: #d84343; --block-red-dark: #8f2323;
+  --block-teal: #3ab5ab; --block-teal-dark: #1f7871;
+  --block-yellow: #e0c23a; --block-yellow-dark: #a38a1c;
+  --block-pink: #d857a0; --block-pink-dark: #96326d;
+}
+
+.skin-chiptune .block,
+.skin-chiptune .cell.filled {
+  border-radius: 3px;
+  background-image: none;
+  background-color: var(--c1);
+  box-shadow:
+    inset -4px -4px 0 var(--c2),
+    inset 4px 4px 0 rgba(255, 255, 255, 0.25);
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -520,8 +526,35 @@ body {
 }
 
 @keyframes particle-burst {
-  0% { transform: translate(0, 0) scale(1); opacity: 1; }
-  100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.2) rotate(var(--rot, 0deg)); opacity: 0; }
+}
+
+.clear-particle.shard {
+  border-radius: 0;
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+}
+
+.clear-particle.pixel {
+  border-radius: 0;
+}
+
+.pulse-ring {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  margin-top: -5px;
+  border: 3px solid var(--ring-color, #fff);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 980;
+  animation: pulse-ring-anim 0.5s ease-out forwards;
+}
+
+@keyframes pulse-ring-anim {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(7); opacity: 0; }
 }
 
 .block, .cell.filled {

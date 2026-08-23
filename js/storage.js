@@ -12,7 +12,7 @@ const Storage = (() => {
     EQUIPPED: 'blockblast.equipped',
   };
 
-  const THEMES = ['theme-classic', 'theme-neon', 'theme-sunset', 'theme-ocean', 'theme-forest'];
+  const THEMES = ['theme-classic', 'theme-neon', 'theme-sunset'];
 
   function getBest() {
     return Number(localStorage.getItem(KEYS.BEST)) || 0;
